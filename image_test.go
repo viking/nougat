@@ -47,7 +47,7 @@ func createTempImage(data string) (path string, err error) {
 	return
 }
 
-func TestImage(t *testing.T) {
+func TestImage_Draw(t *testing.T) {
 	var (
 		image    *Image
 		err      error
@@ -73,5 +73,30 @@ func TestImage(t *testing.T) {
 	}
 	if surface.H != int32(5) {
 		t.Errorf("expected height to be %d, but was %d", 5, surface.H)
+	}
+}
+
+func TestImage_Handle(t *testing.T) {
+	var (
+		image    *Image
+		err      error
+		filename string
+	)
+
+	filename, err = createTempImage(blueBMP)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(filename)
+
+	image, err = NewImage(filename)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer image.Free()
+
+	var empty struct{}
+	if image.Handle(empty) {
+		t.Errorf("handle function didn't return false")
 	}
 }

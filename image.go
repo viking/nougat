@@ -23,6 +23,11 @@ func (img *Image) Draw() *sdl.Surface {
 	return img.image
 }
 
+func (img *Image) Handle(event interface{}) bool {
+	// never handle events
+	return false
+}
+
 func (img *Image) Free() {
 	img.image.Free()
 }

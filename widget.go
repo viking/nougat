@@ -11,5 +11,6 @@ func sdlError() error {
 
 type Widget interface {
 	Draw() *sdl.Surface
+	Handle(event interface{}) bool
 	Free()
 }
