@@ -17,6 +17,25 @@ type Container struct {
 	mutex   sync.Mutex
 }
 
+func (c *Container) Add(w Widget) {
+	c.mutex.Lock()
+	c.Widgets = append(c.Widgets, w)
+	c.mutex.Unlock()
+}
+
+func (c *Container) Remove(w Widget) {
+	c.mutex.Lock()
+	for i, widget := range c.Widgets {
+		if widget == w {
+			widgets := make([]Widget, len(c.Widgets)-1)
+			copy(widgets, c.Widgets[0:i])
+			copy(widgets, c.Widgets[i+1:])
+			c.Widgets = widgets
+		}
+	}
+	c.mutex.Unlock()
+}
+
 func (c *Container) Draw() (result *sdl.Surface) {
 	var (
 		surfaces []*sdl.Surface
@@ -68,23 +87,8 @@ func (c *Container) Draw() (result *sdl.Surface) {
 	return
 }
 
-func (c *Container) Add(w Widget) {
-	c.mutex.Lock()
-	c.Widgets = append(c.Widgets, w)
-	c.mutex.Unlock()
-}
-
-func (c *Container) Remove(w Widget) {
-	c.mutex.Lock()
-	for i, widget := range c.Widgets {
-		if widget == w {
-			widgets := make([]Widget, len(c.Widgets)-1)
-			copy(widgets, c.Widgets[0:i])
-			copy(widgets, c.Widgets[i+1:])
-			c.Widgets = widgets
-		}
-	}
-	c.mutex.Unlock()
+func (c *Container) Handle(event interface{}) bool {
+	return false
 }
 
 func (c *Container) Free() {

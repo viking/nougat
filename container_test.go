@@ -134,3 +134,13 @@ func TestContainer_RemoveWidget(t *testing.T) {
 		t.Errorf("expected surface height to be %d, but was %d", 10, surface.H)
 	}
 }
+
+func TestContainer_Handle(t *testing.T) {
+	c := new(Container)
+	defer c.Free()
+
+	var empty struct{}
+	if c.Handle(empty) {
+		t.Errorf("handle function didn't return false")
+	}
+}
