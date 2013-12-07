@@ -129,24 +129,24 @@ func (c *Container) Handle(event interface{}) bool {
 	}
 
 	// find the widget this pertains to
-	var handled bool
 	for i := len(c.Children) - 1; i >= 0; i-- {
 		child := c.Children[i]
 		if child.Contains(x, y) {
 			// make the event coordinates relative to the widget
 			x, y = child.RelPos(x, y)
 
+			var relEvent interface{}
 			switch e := event.(type) {
 			case sdl.MouseButtonEvent:
 				e.X = uint16(x)
 				e.Y = uint16(y)
-				handled = child.Widget.Handle(e)
+				relEvent = e
 			case sdl.MouseMotionEvent:
 				e.X = uint16(x)
 				e.Y = uint16(y)
-				handled = child.Widget.Handle(e)
+				relEvent = e
 			}
-			if handled {
+			if child.Widget.Handle(relEvent) {
 				return true
 			}
 		}
