@@ -135,215 +135,57 @@ func TestContainer_RemoveWidget(t *testing.T) {
 	}
 }
 
-func TestContainer_HandleMouseButtonEvent_Layer(t *testing.T) {
-	c := &Container{}
-
-	fake_1 := &fakeWidget{}
-	fake_1.draw = func() *sdl.Surface {
-		return sdl.CreateRGBSurface(0, 10, 5, 32, 0, 0, 0, 0)
-	}
-	var handled_1 []interface{}
-	fake_1.handle = func(event interface{}) bool {
-		handled_1 = append(handled_1, event)
-		return true
-	}
-	c.Add(fake_1)
-
-	fake_2 := &fakeWidget{}
-	fake_2.draw = func() *sdl.Surface {
-		return sdl.CreateRGBSurface(0, 5, 10, 32, 0, 0, 0, 0)
-	}
-	var handled_2 []interface{}
-	fake_2.handle = func(event interface{}) bool {
-		handled_2 = append(handled_2, event)
-		return true
-	}
-	c.Add(fake_2)
-
-	surface := c.Draw()
-	defer surface.Free()
-
-	event := sdl.MouseButtonEvent{
-		Type:   sdl.MOUSEBUTTONUP,
-		Button: sdl.BUTTON_LEFT,
-		State:  sdl.PRESSED,
-		X:      uint16(3),
-		Y:      uint16(3),
-	}
-	if !c.Handle(event) {
-		t.Error("expected event to be handled, but wasn't")
-	}
-	if len(handled_2) != 1 {
-		t.Error("widget 2 didn't handle the event")
-	}
-	if event_1, ok := handled_2[0].(sdl.MouseButtonEvent); ok {
-		if event_1.X != uint16(3) {
-			t.Errorf("expected event.X to be %d, but was %d", 3, event_1.X)
-		}
-		if event_1.Y != uint16(3) {
-			t.Errorf("expected event.Y to be %d, but was %d", 3, event_1.Y)
-		}
-	} else {
-		t.Errorf("event wasn't the correct type")
-	}
-
-	event.X = uint16(8)
-	if !c.Handle(event) {
-		t.Error("expected event to be handled, but wasn't")
-	}
-	if len(handled_1) != 1 {
-		t.Error("widget 1 didn't handle the event")
-	}
-	if event_2, ok := handled_1[0].(sdl.MouseButtonEvent); ok {
-		if event_2.X != uint16(8) {
-			t.Errorf("expected event.X to be %d, but was %d", 3, event_2.X)
-		}
-		if event_2.Y != uint16(3) {
-			t.Errorf("expected event.Y to be %d, but was %d", 3, event_2.Y)
-		}
-	} else {
-		t.Errorf("event wasn't the correct type")
-	}
+var eventTests = []struct {
+	pack          uint8
+	event         interface{}
+	handledBy     uint
+	expectedEvent interface{}
+}{
+	{PackLayer, sdl.MouseButtonEvent{X: 8, Y: 3}, 0, sdl.MouseButtonEvent{X: 8, Y: 3}},
+	{PackLayer, sdl.MouseButtonEvent{X: 3, Y: 3}, 1, sdl.MouseButtonEvent{X: 3, Y: 3}},
+	{PackHorizontal, sdl.MouseButtonEvent{X: 3, Y: 3}, 0, sdl.MouseButtonEvent{X: 3, Y: 3}},
+	{PackHorizontal, sdl.MouseButtonEvent{X: 13, Y: 3}, 1, sdl.MouseButtonEvent{X: 3, Y: 3}},
+	{PackVertical, sdl.MouseButtonEvent{X: 3, Y: 3}, 0, sdl.MouseButtonEvent{X: 3, Y: 3}},
+	{PackVertical, sdl.MouseButtonEvent{X: 3, Y: 8}, 1, sdl.MouseButtonEvent{X: 3, Y: 3}},
 }
 
-func TestContainer_HandleMouseButtonEvent_Horizontal(t *testing.T) {
-	c := &Container{Pack: PackHorizontal}
+func TestContainer_Handle(t *testing.T) {
+	for testNum, tt := range eventTests {
+		// setup
+		c := &Container{Pack: tt.pack}
 
-	fake_1 := &fakeWidget{}
-	fake_1.draw = func() *sdl.Surface {
-		return sdl.CreateRGBSurface(0, 10, 5, 32, 0, 0, 0, 0)
-	}
-	var handled_1 []interface{}
-	fake_1.handle = func(event interface{}) bool {
-		handled_1 = append(handled_1, event)
-		return true
-	}
-	c.Add(fake_1)
-
-	fake_2 := &fakeWidget{}
-	fake_2.draw = func() *sdl.Surface {
-		return sdl.CreateRGBSurface(0, 5, 10, 32, 0, 0, 0, 0)
-	}
-	var handled_2 []interface{}
-	fake_2.handle = func(event interface{}) bool {
-		handled_2 = append(handled_2, event)
-		return true
-	}
-	c.Add(fake_2)
-
-	surface := c.Draw()
-	defer surface.Free()
-
-	event := sdl.MouseButtonEvent{
-		Type:   sdl.MOUSEBUTTONUP,
-		Button: sdl.BUTTON_LEFT,
-		State:  sdl.PRESSED,
-		X:      uint16(3),
-		Y:      uint16(3),
-	}
-	if !c.Handle(event) {
-		t.Error("expected event to be handled, but wasn't")
-	}
-	if len(handled_1) != 1 {
-		t.Error("widget 1 didn't handle the event")
-	}
-	if event_1, ok := handled_1[0].(sdl.MouseButtonEvent); ok {
-		if event_1.X != uint16(3) {
-			t.Errorf("expected event.X to be %d, but was %d", 3, event_1.X)
+		var handled [2][]interface{}
+		child_1 := &fakeWidget{}
+		child_1.draw = func() *sdl.Surface {
+			return sdl.CreateRGBSurface(0, 10, 5, 32, 0, 0, 0, 0)
 		}
-		if event_1.Y != uint16(3) {
-			t.Errorf("expected event.Y to be %d, but was %d", 3, event_1.Y)
+		child_1.handle = func(event interface{}) bool {
+			handled[0] = append(handled[0], event)
+			return true
 		}
-	} else {
-		t.Errorf("event wasn't the correct type")
-	}
+		c.Add(child_1)
 
-	event.X = uint16(13)
-	if !c.Handle(event) {
-		t.Error("expected event to be handled, but wasn't")
-	}
-	if len(handled_2) != 1 {
-		t.Error("widget 2 didn't handle the event")
-	}
-	if event_2, ok := handled_2[0].(sdl.MouseButtonEvent); ok {
-		if event_2.X != uint16(3) {
-			t.Errorf("expected event.X to be %d, but was %d", 3, event_2.X)
+		child_2 := &fakeWidget{}
+		child_2.draw = func() *sdl.Surface {
+			return sdl.CreateRGBSurface(0, 5, 10, 32, 0, 0, 0, 0)
 		}
-		if event_2.Y != uint16(3) {
-			t.Errorf("expected event.Y to be %d, but was %d", 3, event_2.Y)
+		child_2.handle = func(event interface{}) bool {
+			handled[1] = append(handled[1], event)
+			return true
 		}
-	} else {
-		t.Errorf("event wasn't the correct type")
-	}
-}
+		c.Add(child_2)
 
-func TestContainer_HandleMouseButtonEvent_Vertical(t *testing.T) {
-	c := &Container{Pack: PackVertical}
+		surface := c.Draw()
+		defer surface.Free()
 
-	fake_1 := &fakeWidget{}
-	fake_1.draw = func() *sdl.Surface {
-		return sdl.CreateRGBSurface(0, 10, 5, 32, 0, 0, 0, 0)
-	}
-	var handled_1 []interface{}
-	fake_1.handle = func(event interface{}) bool {
-		handled_1 = append(handled_1, event)
-		return true
-	}
-	c.Add(fake_1)
-
-	fake_2 := &fakeWidget{}
-	fake_2.draw = func() *sdl.Surface {
-		return sdl.CreateRGBSurface(0, 5, 10, 32, 0, 0, 0, 0)
-	}
-	var handled_2 []interface{}
-	fake_2.handle = func(event interface{}) bool {
-		handled_2 = append(handled_2, event)
-		return true
-	}
-	c.Add(fake_2)
-
-	surface := c.Draw()
-	defer surface.Free()
-
-	event := sdl.MouseButtonEvent{
-		Type:   sdl.MOUSEBUTTONUP,
-		Button: sdl.BUTTON_LEFT,
-		State:  sdl.PRESSED,
-		X:      uint16(3),
-		Y:      uint16(3),
-	}
-	if !c.Handle(event) {
-		t.Error("expected event to be handled, but wasn't")
-	}
-	if len(handled_1) != 1 {
-		t.Error("widget 1 didn't handle the event")
-	}
-	if event_1, ok := handled_1[0].(sdl.MouseButtonEvent); ok {
-		if event_1.X != uint16(3) {
-			t.Errorf("expected event.X to be %d, but was %d", 3, event_1.X)
+		// send event
+		if !c.Handle(tt.event) {
+			t.Errorf("test %d: expected event to be handled, but wasn't", testNum)
 		}
-		if event_1.Y != uint16(3) {
-			t.Errorf("expected event.Y to be %d, but was %d", 3, event_1.Y)
+		if len(handled[tt.handledBy]) != 1 {
+			t.Errorf("test %d: widget %d didn't handle the event", testNum, tt.handledBy)
+		} else if event := handled[tt.handledBy][0]; event != tt.expectedEvent {
+			t.Errorf("test %d: expected %+v, got %+v", testNum, tt.expectedEvent, event)
 		}
-	} else {
-		t.Errorf("event wasn't the correct type")
-	}
-
-	event.Y = uint16(8)
-	if !c.Handle(event) {
-		t.Error("expected event to be handled, but wasn't")
-	}
-	if len(handled_2) != 1 {
-		t.Error("widget 2 didn't handle the event")
-	}
-	if event_2, ok := handled_2[0].(sdl.MouseButtonEvent); ok {
-		if event_2.X != uint16(3) {
-			t.Errorf("expected event.X to be %d, but was %d", 3, event_2.X)
-		}
-		if event_2.Y != uint16(3) {
-			t.Errorf("expected event.Y to be %d, but was %d", 3, event_2.Y)
-		}
-	} else {
-		t.Errorf("event wasn't the correct type")
 	}
 }
