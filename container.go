@@ -115,22 +115,43 @@ func (c *Container) Draw() (result *sdl.Surface) {
 }
 
 func (c *Container) Handle(event interface{}) bool {
+	var x, y int32
+
 	switch e := event.(type) {
 	case sdl.MouseButtonEvent:
-		// find the widget this pertains to
-		for i := len(c.Children) - 1; i >= 0; i-- {
-			child := c.Children[i]
-			if child.Contains(int32(e.X), int32(e.Y)) {
-				// make the event coordinates relative to the widget
-				x, y := child.RelPos(int32(e.X), int32(e.Y))
+		x = int32(e.X)
+		y = int32(e.Y)
+	case sdl.MouseMotionEvent:
+		x = int32(e.X)
+		y = int32(e.Y)
+	default:
+		return false
+	}
+
+	// find the widget this pertains to
+	var handled bool
+	for i := len(c.Children) - 1; i >= 0; i-- {
+		child := c.Children[i]
+		if child.Contains(x, y) {
+			// make the event coordinates relative to the widget
+			x, y = child.RelPos(x, y)
+
+			switch e := event.(type) {
+			case sdl.MouseButtonEvent:
 				e.X = uint16(x)
 				e.Y = uint16(y)
-				if child.Widget.Handle(e) {
-					return true
-				}
+				handled = child.Widget.Handle(e)
+			case sdl.MouseMotionEvent:
+				e.X = uint16(x)
+				e.Y = uint16(y)
+				handled = child.Widget.Handle(e)
+			}
+			if handled {
+				return true
 			}
 		}
 	}
+
 	return false
 }
 

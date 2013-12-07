@@ -143,10 +143,16 @@ var eventTests = []struct {
 }{
 	{PackLayer, sdl.MouseButtonEvent{X: 8, Y: 3}, 0, sdl.MouseButtonEvent{X: 8, Y: 3}},
 	{PackLayer, sdl.MouseButtonEvent{X: 3, Y: 3}, 1, sdl.MouseButtonEvent{X: 3, Y: 3}},
+	{PackLayer, sdl.MouseMotionEvent{X: 8, Y: 3}, 0, sdl.MouseMotionEvent{X: 8, Y: 3}},
+	{PackLayer, sdl.MouseMotionEvent{X: 3, Y: 3}, 1, sdl.MouseMotionEvent{X: 3, Y: 3}},
 	{PackHorizontal, sdl.MouseButtonEvent{X: 3, Y: 3}, 0, sdl.MouseButtonEvent{X: 3, Y: 3}},
 	{PackHorizontal, sdl.MouseButtonEvent{X: 13, Y: 3}, 1, sdl.MouseButtonEvent{X: 3, Y: 3}},
+	{PackHorizontal, sdl.MouseMotionEvent{X: 3, Y: 3}, 0, sdl.MouseMotionEvent{X: 3, Y: 3}},
+	{PackHorizontal, sdl.MouseMotionEvent{X: 13, Y: 3}, 1, sdl.MouseMotionEvent{X: 3, Y: 3}},
 	{PackVertical, sdl.MouseButtonEvent{X: 3, Y: 3}, 0, sdl.MouseButtonEvent{X: 3, Y: 3}},
 	{PackVertical, sdl.MouseButtonEvent{X: 3, Y: 8}, 1, sdl.MouseButtonEvent{X: 3, Y: 3}},
+	{PackVertical, sdl.MouseMotionEvent{X: 3, Y: 3}, 0, sdl.MouseMotionEvent{X: 3, Y: 3}},
+	{PackVertical, sdl.MouseMotionEvent{X: 3, Y: 8}, 1, sdl.MouseMotionEvent{X: 3, Y: 3}},
 }
 
 func TestContainer_Handle(t *testing.T) {
