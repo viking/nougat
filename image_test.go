@@ -100,3 +100,21 @@ func TestImage_Handle(t *testing.T) {
 		t.Errorf("handle function didn't return false")
 	}
 }
+
+func TestImage_Draw_SolidColor(t *testing.T) {
+	var (
+		image   *Image
+		surface *sdl.Surface
+	)
+
+	image = NewImageWithColor(0x0000ff, 10, 10)
+	defer image.Free()
+
+	surface = image.Draw()
+	if surface.W != int32(10) {
+		t.Errorf("expected width to be %d, but was %d", 10, surface.W)
+	}
+	if surface.H != int32(10) {
+		t.Errorf("expected height to be %d, but was %d", 10, surface.H)
+	}
+}

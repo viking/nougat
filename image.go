@@ -8,14 +8,22 @@ type Image struct {
 	image *sdl.Surface
 }
 
-func NewImage(filename string) (img *Image, err error) {
-	var image *sdl.Surface
-	if image = sdl.Load(filename); image == nil {
+func NewImage(filename string) (image *Image, err error) {
+	var surface *sdl.Surface
+	if surface = sdl.Load(filename); surface == nil {
 		err = sdlError()
 		return
 	}
 
-	img = &Image{image}
+	image = &Image{surface}
+	return
+}
+
+func NewImageWithColor(color uint32, w int, h int) (image *Image) {
+	surface := sdl.CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0)
+	surface.FillRect(nil, color)
+
+	image = &Image{surface}
 	return
 }
 
