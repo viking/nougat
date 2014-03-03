@@ -21,12 +21,10 @@ func NewWindow(c *Container, w, h int) (win *Window, err error) {
 	return
 }
 
-func (win *Window) Draw() *sdl.Surface {
+func (win *Window) Draw() {
 	surface := win.Container.Draw()
 	win.surface.Blit(nil, surface, nil)
 	surface.Free()
-	return win.surface
-}
 
-func (win *Window) Free() {
+	win.surface.Flip()
 }

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestWindow_Draw(t *testing.T) {
+func TestWindow(t *testing.T) {
 	c := &Container{}
 
 	fake := &fakeWidget{}
@@ -18,12 +18,6 @@ func TestWindow_Draw(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	surface := win.Draw()
-	if surface.W != 20 {
-		t.Errorf("expected surface width to be %d, but was %d", 20, surface.W)
-	}
-	if surface.H != 20 {
-		t.Errorf("expected surface height to be %d, but was %d", 20, surface.H)
-	}
+	defer win.Free()
+	win.Draw()
 }
