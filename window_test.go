@@ -6,16 +6,18 @@ import (
 )
 
 func TestWindow_Draw(t *testing.T) {
-	win, err := NewWindow(20, 20)
-	if err != nil {
-		t.Fatal(err)
-	}
+	c := &Container{}
 
 	fake := &fakeWidget{}
 	fake.draw = func() *sdl.Surface {
 		return sdl.CreateRGBSurface(0, 10, 5, 32, 0, 0, 0, 0)
 	}
-	win.Add(fake)
+	c.Add(fake)
+
+	win, err := NewWindow(c, 20, 20)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	surface := win.Draw()
 	if surface.W != 20 {

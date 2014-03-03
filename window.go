@@ -11,15 +11,13 @@ type Window struct {
 	surface *sdl.Surface
 }
 
-func NewWindow(w, h int) (win *Window, err error) {
-	win = &Window{W: w, H: h}
+func NewWindow(c *Container, w, h int) (win *Window, err error) {
+	win = &Window{Container: c, W: w, H: h}
 	win.surface = sdl.SetVideoMode(win.W, win.H, 32, sdl.RESIZABLE)
 	if win.surface == nil {
 		err = sdlError()
 		return
 	}
-
-	win.Container = new(Container)
 	return
 }
 
