@@ -9,6 +9,7 @@ const (
 	PackLayer = iota
 	PackHorizontal
 	PackVertical
+	PackNone
 )
 
 type Placement struct {
@@ -38,6 +39,12 @@ type Container struct {
 func (c *Container) Add(w Widget) {
 	c.mutex.Lock()
 	c.Children = append(c.Children, &Placement{Widget: w})
+	c.mutex.Unlock()
+}
+
+func (c *Container) AddWithPosition(w Widget, x, y int32) {
+	c.mutex.Lock()
+	c.Children = append(c.Children, &Placement{Widget: w, X: x, Y: y})
 	c.mutex.Unlock()
 }
 
@@ -71,27 +78,35 @@ func (c *Container) Draw() (result *sdl.Surface) {
 		switch c.Pack {
 		case PackLayer:
 			child.X = 0
-			if surface.W > w {
-				w = surface.W
+			if child.W > w {
+				w = child.W
 			}
 			child.Y = 0
-			if surface.H > h {
-				h = surface.H
+			if child.H > h {
+				h = child.H
 			}
 		case PackHorizontal:
 			child.X = w
-			w += surface.W
+			w += child.W
 			child.Y = 0
-			if surface.H > h {
-				h = surface.H
+			if child.H > h {
+				h = child.H
 			}
 		case PackVertical:
 			child.X = 0
-			if surface.W > w {
-				w = surface.W
+			if child.W > w {
+				w = child.W
 			}
 			child.Y = h
-			h += surface.H
+			h += child.H
+		case PackNone:
+			// X and Y coordinates are fixed
+			if (child.X + child.W) > w {
+				w = child.X + child.W
+			}
+			if (child.Y + child.H) > h {
+				h = child.Y + child.H
+			}
 		}
 	}
 	c.mutex.Unlock()

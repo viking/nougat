@@ -108,6 +108,35 @@ func TestContainer_PackVertical(t *testing.T) {
 	}
 }
 
+func TestContainer_PackNone(t *testing.T) {
+	c := &Container{Pack: PackNone}
+
+	fake_1 := &fakeWidget{}
+	fake_1.draw = func() *sdl.Surface {
+		return sdl.CreateRGBSurface(0, 10, 5, 32, 0, 0, 0, 0)
+	}
+	c.AddWithPosition(fake_1, 0, 10)
+
+	fake_2 := &fakeWidget{}
+	fake_2.draw = func() *sdl.Surface {
+		return sdl.CreateRGBSurface(0, 5, 10, 32, 0, 0, 0, 0)
+	}
+	c.AddWithPosition(fake_2, 10, 0)
+
+	surface := c.Draw()
+	if surface == nil {
+		t.Fatal("surface was nil")
+	}
+	defer surface.Free()
+
+	if surface.W != 15 {
+		t.Errorf("expected surface width to be %d, but was %d", 15, surface.W)
+	}
+	if surface.H != 15 {
+		t.Errorf("expected surface height to be %d, but was %d", 15, surface.H)
+	}
+}
+
 func TestContainer_RemoveWidget(t *testing.T) {
 	c := new(Container)
 
