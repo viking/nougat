@@ -1,0 +1,5 @@
+Sort out event handling:
+  Ideas:
+    - make Widget a struct with default handling
+    - implement DispatchEvent for each Widget type
+    - create EventDispatcher type
