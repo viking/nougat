@@ -28,7 +28,9 @@ func NewImageWithColor(color uint32, w int, h int) (image *Image) {
 }
 
 func (img *Image) Draw() *sdl.Surface {
-	return img.image
+	surface := sdl.CreateRGBSurface(0, int(img.image.W), int(img.image.H), 32, 0, 0, 0, 0)
+	surface.Blit(nil, img.image, nil)
+	return surface
 }
 
 func (img *Image) Handle(event interface{}) bool {
