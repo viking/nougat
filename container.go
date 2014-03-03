@@ -14,17 +14,17 @@ const (
 
 type Placement struct {
 	Widget Widget
-	X      int32
-	Y      int32
-	W      int32
-	H      int32
+	X      int16
+	Y      int16
+	W      int16
+	H      int16
 }
 
-func (p *Placement) Contains(x, y int32) bool {
+func (p *Placement) Contains(x, y int16) bool {
 	return x >= p.X && x < (p.X+p.W) && y >= p.Y && y < (p.Y+p.H)
 }
 
-func (p *Placement) RelPos(x, y int32) (retx int32, rety int32) {
+func (p *Placement) RelPos(x, y int16) (retx int16, rety int16) {
 	retx = x - p.X
 	rety = y - p.Y
 	return
@@ -42,7 +42,7 @@ func (c *Container) Add(w Widget) {
 	c.mutex.Unlock()
 }
 
-func (c *Container) AddWithPosition(w Widget, x, y int32) {
+func (c *Container) AddWithPosition(w Widget, x, y int16) {
 	c.mutex.Lock()
 	c.Children = append(c.Children, &Placement{Widget: w, X: x, Y: y})
 	c.mutex.Unlock()
@@ -64,15 +64,15 @@ func (c *Container) Remove(widget Widget) {
 func (c *Container) Draw() (result *sdl.Surface) {
 	var (
 		surfaces []*sdl.Surface
-		w, h     int32
+		w, h     int16
 	)
 
 	// determine surface dimensions
 	c.mutex.Lock()
 	for _, child := range c.Children {
 		surface := child.Widget.Draw()
-		child.W = surface.W
-		child.H = surface.H
+		child.W = int16(surface.W)
+		child.H = int16(surface.H)
 
 		surfaces = append(surfaces, surface)
 		switch c.Pack {
@@ -130,15 +130,15 @@ func (c *Container) Draw() (result *sdl.Surface) {
 }
 
 func (c *Container) Handle(event interface{}) bool {
-	var x, y int32
+	var x, y int16
 
 	switch e := event.(type) {
 	case sdl.MouseButtonEvent:
-		x = int32(e.X)
-		y = int32(e.Y)
+		x = int16(e.X)
+		y = int16(e.Y)
 	case sdl.MouseMotionEvent:
-		x = int32(e.X)
-		y = int32(e.Y)
+		x = int16(e.X)
+		y = int16(e.Y)
 	default:
 		return false
 	}
