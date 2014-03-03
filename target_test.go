@@ -28,8 +28,8 @@ func TestDefaultEventTarget(t *testing.T) {
 	for i, tt := range eventTargetTests {
 		target := new(DefaultEventTarget)
 		called := 0
-		handler := new(EventHandler)
-		handler.Run = func(event Event) {
+		handler := new(EventListener)
+		handler.HandleEvent = func(event Event) {
 			called += 1
 		}
 
@@ -54,8 +54,8 @@ func TestDefaultEventTarget_Bubbling(t *testing.T) {
 	target.eventParent = parent
 
 	parentCalled := 0
-	parentHandler := new(EventHandler)
-	parentHandler.Run = func(event Event) {
+	parentHandler := new(EventListener)
+	parentHandler.HandleEvent = func(event Event) {
 		parentCalled += 1
 	}
 	parent.AddEventListener(EvtKeyboard, parentHandler)

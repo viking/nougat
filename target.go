@@ -4,38 +4,38 @@ import (
 	"sync"
 )
 
-type EventHandler struct {
-	Run func(event Event)
+type EventListener struct {
+	HandleEvent func(event Event)
 }
 
 type EventTarget interface {
-	AddEventListener(kind uint8, handler *EventHandler)
-	RemoveEventListener(kind uint8, handler *EventHandler)
+	AddEventListener(kind uint8, handler *EventListener)
+	RemoveEventListener(kind uint8, handler *EventListener)
 	DispatchEvent(event Event)
 	EventParent() EventTarget
 }
 
 type DefaultEventTarget struct {
-	handlers    map[uint8][]*EventHandler
+	handlers    map[uint8][]*EventListener
 	mutex       sync.Mutex
 	eventParent EventTarget
 }
 
-func (et *DefaultEventTarget) AddEventListener(kind uint8, handler *EventHandler) {
+func (et *DefaultEventTarget) AddEventListener(kind uint8, handler *EventListener) {
 	et.mutex.Lock()
 	if et.handlers == nil {
-		et.handlers = make(map[uint8][]*EventHandler)
+		et.handlers = make(map[uint8][]*EventListener)
 	}
 	et.handlers[kind] = append(et.handlers[kind], handler)
 	et.mutex.Unlock()
 }
 
-func (et *DefaultEventTarget) RemoveEventListener(kind uint8, handler *EventHandler) {
+func (et *DefaultEventTarget) RemoveEventListener(kind uint8, handler *EventListener) {
 	et.mutex.Lock()
 	if et.handlers[kind] != nil {
 		for i, h := range et.handlers[kind] {
 			if handler == h {
-				handlers := make([]*EventHandler, len(et.handlers[kind])-1)
+				handlers := make([]*EventListener, len(et.handlers[kind])-1)
 				copy(handlers, et.handlers[kind][0:i])
 				copy(handlers, et.handlers[kind][i+1:])
 				et.handlers[kind] = handlers
@@ -81,7 +81,7 @@ func (et *DefaultEventTarget) DispatchEvent(event Event) {
 
 	if kind > 0 && et.handlers[kind] != nil {
 		for _, handler := range et.handlers[kind] {
-			handler.Run(event)
+			handler.HandleEvent(event)
 		}
 	}
 	if event.Bubbles() {
