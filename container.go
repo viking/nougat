@@ -115,14 +115,11 @@ func (c *Container) Draw() (result *sdl.Surface) {
 	if w > 0 && h > 0 {
 		result = sdl.CreateRGBSurface(0, int(w), int(h), 32, 0, 0, 0, 0)
 		rect := new(sdl.Rect)
-		for _, surface := range surfaces {
+		for i, surface := range surfaces {
+			placement := c.Children[i]
+			rect.X = placement.X
+			rect.Y = placement.Y
 			result.Blit(rect, surface, nil)
-			switch c.Pack {
-			case PackHorizontal:
-				rect.X += int16(surface.W)
-			case PackVertical:
-				rect.Y += int16(surface.H)
-			}
 			surface.Free()
 		}
 	}
