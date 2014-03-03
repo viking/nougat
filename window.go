@@ -31,5 +31,4 @@ func (win *Window) Draw() *sdl.Surface {
 }
 
 func (win *Window) Free() {
-	win.surface.Free()
 }

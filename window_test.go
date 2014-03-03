@@ -10,7 +10,6 @@ func TestWindow_Draw(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer win.Free()
 
 	fake := &fakeWidget{}
 	fake.draw = func() *sdl.Surface {
